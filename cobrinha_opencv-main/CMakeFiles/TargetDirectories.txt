@@ -1,0 +1,3 @@
+/home/gabs/Downloads/faceDetect/projetocobrinha/CMakeFiles/projetocobrinha.dir
+/home/gabs/Downloads/faceDetect/projetocobrinha/CMakeFiles/edit_cache.dir
+/home/gabs/Downloads/faceDetect/projetocobrinha/CMakeFiles/rebuild_cache.dir

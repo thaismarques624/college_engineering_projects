@@ -1,0 +1,138 @@
+
+:-use_module(library(pce)).
+:-use_module(library(pce_style_item)).
+
+inicio:-
+	new(Menu, dialog('CMV VER. 1.0', size(1000,800))),
+	new(L,label(nome,'CLINICA A PRE-DIAGNOSTICO')),
+	new(A,label(nome,'LT.Co')),
+	new(@texto,label(nome,'COMECE O FORMULÁRIO: ')),
+	new(@respl,label(nome,'')),
+	new(Sair,button('SAIR',and(message(Menu, destroy),message(Menu,free)))),
+	new(@boton,button('FORMULARIO',message(@prolog,botones))),
+
+
+	send(Menu,append(L)),new(@btncarrera,button('Diagnostico?')),
+	send(Menu,display,L,point(125,20)),
+	send(Menu,display,A,point(80,360)),
+	send(Menu,display,@boton,point(100,150)),
+	send(Menu,display,@texto,point(20,100)),
+	send(Menu,display,Sair,point(20,400)),
+	send(Menu,display,@respl,point(20,130)),
+	send(Menu,open_centered).
+
+%doenças:
+
+falas('Pré-diagnostico de Alergia Alimentar:
+       Relatar a sua médica veterinaria, para os demais exames.
+'):-dalergiaalimentar,!.
+
+falas('Pré-diagnostico de Colica Equina:
+       Relatar a sua médica veterinaria, para os demais exames e explicações.'):-dcolicaequina,!.
+
+falas('Pré-diagnostico de Displasia Coxofemoral:
+       Relatar a sua médica veterinaria, para os demais exames e explicações.
+'):-ddisplasiacoxofemoral,!.
+
+falas('Pré-diagnostico de Doença do Carrapato:
+       Relatar a sua médica veterinaria, para os demais exames e explicações.
+'):-ddoencadocarrapato,!.
+
+falas('Pré-diagnostico de Insuficiência Renal:
+       Relatar a sua médica veterinaria, para os demais exames e explicações.'):-dinsuficienciarenal,!.
+
+falas('Pré-diagnostico de Leishmaniose(Calazar):
+       Relatar a sua médica veterinaria, para os demais exames e explicações.
+'):-dleish,!.
+
+
+
+falas('ERROR, DADOS INSUFICIENTES').
+
+% perguntas para indentificar a doença:
+
+alergiaa:- dalergiaalimentar,
+	pergunta('Seu animal está com corceira?'),
+	pergunta('Seu animal possui vermelhidão?'),
+	pergunta('A pele do seu animal está descamando?'),
+	pergunta('Seu animal possui alguma lesão?').
+
+colicae:- dcolicaequina,
+        pergunta('Seu animal é um cavalo? '),
+	pergunta('Seu animal está inquieto constantemente?'),
+	pergunta('Seu animal estica as patas constantemente ou deita?'),
+	pergunta('Seu animal está suando muito?').
+
+displasiac:- ddisplasiacoxofemoral,
+        pergunta('Seu animal é um cachorro? '),
+	pergunta('Seu animal hesita usar as patas traseiras?'),
+	pergunta('Seu animal manca constantemente?'),
+	pergunta('Seu animal perdeu peso?').
+doençac:- ddoencadocarrapato,
+        pergunta('Seu animal está com febre? '),
+	pergunta('Seu animal está com falta de apetite?'),
+	pergunta('Seu animal apresenta sangramento nasal ou urinário?').
+
+insuficienciar:- dinsuficienciarenal,
+        pergunta('Seu animal está com prolemas de apetite? '),
+	pergunta('Seu animal está vomitando constantemente?'),
+	pergunta('Seu animal está urinando desreguladamente?').
+
+leishmaiose:- dleish,
+        pergunta('Seu animal está com feridas?'),
+	pergunta('Seu animal teve diarreia?'),
+	pergunta('Seu animal está vomitando constantemente?'),
+	pergunta('Seu animal perdeu peso?').
+
+
+
+%Aqui tem as perguntas identificadoras das doenças.
+
+dalergiaalimentar:-pergunta('Possui vermelhidão?'),!.
+dcolicaequina:-pergunta('Seu animal é um cavalo?'),!.
+ddisplasiacoxofemoral:-pergunta('Seu animal é um cachorro?'),!.
+dinsuficienciarenal:-pergunta('Seu animal está vomitando constantemente?'),!.
+ddoencadocarrapato:-pergunta('Seu animal está com febre?'),!.
+dleish:-pergunta('Seu animal está com feridas?'),!.
+
+% Controla os processos de perguntas e respostas, quando o usuario clica
+% em si e em no.
+
+:-dynamic si/1,no/1.
+perguntar(Problema):- new(Di,dialog('Pré-diagnostico')),
+     new(L2,label(texto,'Responda:')),
+     new(La,label(prob,Problema)),
+     new(B1,button(si,and(message(Di,return,sim)))),
+     new(B2,button(no,and(message(Di,return,nao)))),
+
+         send(Di,append(L2)),
+	 send(Di,append(La)),
+	 send(Di,append(B1)),
+	 send(Di,append(B2)),
+
+	 send(Di,default_button,si),
+	 send(Di,open_centered),get(Di,confirm,Answer),
+	 write(Answer),send(Di,destroy),
+	 ((Answer==sim)->assert(si(Problema));
+	 assert(no(Problema)),fail).
+
+%Para limpar depois de responder uma pergunta.
+
+pergunta(S):-(si(S)->true; (no(S)->fail; perguntar(S))).
+limpiar :- retract(si(_)),fail.
+limpiar :- retract(no(_)),fail.
+limpiar.
+
+%Aqui é o processo de selecionar.
+
+botones :- lim,
+	send(@boton,free),
+	send(@btncarrera,free),
+	falas(Fala),
+	send(@texto,selection(' ')),
+	send(@respl,selection(Fala)),
+	new(@boton,button('iniciar',message(@prolog,botones))),
+        send(Menu,display,@boton,point(40,50)),
+        send(Menu,display,@btncarrera,point(20,50)),
+limpiar.
+lim :- send(@respl, selection('')).

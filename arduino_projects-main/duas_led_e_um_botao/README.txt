@@ -1,0 +1,1 @@
+Esse projeto é composto por duas leds, um botão e um buzzer. Esse ultimo toca uma melodia definida em frequências no começo do código.
